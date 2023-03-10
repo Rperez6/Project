@@ -21,7 +21,7 @@ def home():
 
 
 #API FOR CAPTAIN
-#GET specific Captains captain ID http://127.0.0.1:5000/api/captains?id=
+#GET specific Captain using captain badge http://127.0.0.1:5000/api/captains?id=
 @app.route('/api/captains', methods=['GET']) # #
 def api_captains_id():
     if 'id' in request.args: 
@@ -42,7 +42,7 @@ def api_captains_id():
         }
     return jsonify(capt_dict)
 
-#GET  ALL Captains using ID http://127.0.0.1:5000/api/captains
+#GET  ALL Captains using  http://127.0.0.1:5000/api/captains/all
 @app.route('/api/captains/all', methods=['GET'])
 def api_getallcaptains():
     sql = "SELECT capt_badge, fname, lname, ranking, homeplanet FROM Captains"
@@ -136,33 +136,27 @@ def api_addspaceship():
     cursor=conn.cursor()
     cursor.execute(captain)
     results = cursor.fetchall()
-    
-    if len(results) == 0:
-        return 'ERROR: Captain badge not found!'
-    
     capid=results[0][0]
     add = "INSERT INTO spaceship (maxweight, ship_tag, capt_badge, captainid) values (%s, '%s', %s, %s)" %  (newmaxweight, newshiptag,newcapt,capid)
     execute_query(conn, add)
     return 'Spaceship added successfully'
 
 
-#PUT (update) spaceship using JSON format http://127.0.0.1:5000/api/spaceship/update/(ship_tag) 
+#PUT (update) spaceship weight/capbadge in JSON format http://127.0.0.1:5000/api/spaceship/update/(ship_tag) 
 @app.route('/api/spaceship/update/<string:ship_tag>', methods=['PUT'])
 def update_spaceship(ship_tag):
     request_data = request.json
     updmaxweight = request_data['maxweight']
     updcapid = request_data['capt_badge']
-    #Check captain ID
-    captain="SELECT id FROM Captains WHERE capt_badge=%s" % updcapid
-    cursor=conn.cursor()
-    ship_tag1=str(ship_tag)
+    # Check captain ID
+    captain = "SELECT id FROM Captains WHERE capt_badge=%s" % updcapid
+    cursor = conn.cursor()
     cursor.execute(captain)
     results = cursor.fetchall()
-    capid=results[0]
-    update_query = "UPDATE spaceship SET maxweight=%s, capt_badge=%s, captainid=%s WHERE ship_tag='%s'" % (updmaxweight,updcapid,capid,ship_tag1)
+    capid = results[0][0]
+    update_query = "UPDATE spaceship SET maxweight=%s, capt_badge=%s, captainid=%s WHERE ship_tag= '%s'" % (updmaxweight,updcapid,capid,ship_tag)
     execute_query(conn, update_query)
     return 'Spaceship tag ' +(ship_tag)+ ' updated successfully'
-
 
 # #API for cargo #########
 
