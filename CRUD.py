@@ -21,122 +21,147 @@ def home():
 
 
 #API FOR CAPTAIN
-#GET  Captains using ID http://127.0.0.1:5000/api/captains?id=
+#GET specific Captains captain ID http://127.0.0.1:5000/api/captains?id=
 @app.route('/api/captains', methods=['GET']) # #
 def api_captains_id():
     if 'id' in request.args: 
         id = int(request.args['id'])
     else:
         return 'ERROR: No valid ID provided!' 
-    sql = "SELECT capt_id, fname, lname, ranking, homeplanet FROM Captains WHERE capt_id = %s" %(id)
+    sql = "SELECT capt_badge, fname, lname, ranking, homeplanet FROM Captains WHERE capt_badge = %s" %(id)
     cursor=conn.cursor()
     cursor.execute(sql)
     records=cursor.fetchall()
     for records in records:
         capt_dict= {
-            "Capt_ID ": records[0],
+            "Capt_badge ": records[0],
             "First_Name ":records[1],
             "Last_Name ":records[2],
             "Ranking ": records[3],
-            "HomePLanet ": records[4]
+            "Home PLanet ": records[4]
         }
     return jsonify(capt_dict)
 
-        
+#GET  ALL Captains using ID http://127.0.0.1:5000/api/captains
+@app.route('/api/captains/all', methods=['GET'])
+def api_getallcaptains():
+    sql = "SELECT capt_badge, fname, lname, ranking, homeplanet FROM Captains"
+    cursor=conn.cursor()
+    cursor.execute(sql)
+    records=cursor.fetchall()
+    captains = []
+    for record in records:
+        captain = {
+            'Captain Badge ': record[0],
+            'First_Name': record[1],
+            "Last_Name ":record[2],
+            "Ranking ": record[3],
+            "Home PLanet ": record[4]
+        }
+        captains.append(captain)
+    response = {'captains': captains}
+    return jsonify(response)
     
-#Delete Captains using ID in http://127.0.0.1:5000/api/captains/(captain ID)
-@app.route('/api/captains/delete/<int:capt_id>', methods= ['DELETE'])
-def delete_captain(capt_id):
-    delete = "DELETE FROM Captains WHERE capt_id = '%s'" % (capt_id)
+#Delete Captains using ID in http://127.0.0.1:5000/api/captains/delete/(capt_badge)
+@app.route('/api/captains/delete/<int:capt_badge>', methods= ['DELETE'])
+def delete_captain(capt_badge):
+    delete = "DELETE FROM Captains WHERE capt_badge = '%s'" % (capt_badge)
     execute_query(conn, delete)
-    return 'Captain ' +str(capt_id)+' has been deleted.'
+    return 'Captain ' +str(capt_badge)+' has been deleted.'
 
-#PUT (udpate) Captain using JSON format http://127.0.0.1:5000/api/captains/update/(asset_ID) 
-@app.route('/api/captains/update/<int:capt_id>', methods=['PUT'])
-def update_captains(capt_id):
+#PUT (udpate) Captain using JSON format http://127.0.0.1:5000/api/captains/update/(capt_badge) 
+@app.route('/api/captains/update/<int:capt_badge>', methods=['PUT'])
+def update_captains(capt_badge):
     request_data = request.json
     updfname = request_data['fname']
     updlname = request_data['lname']
     updrank = request_data['ranking']
     updhome = request_data['homeplanet']
-    update_query = "UPDATE Captains SET  fname='%s', lname='%s', ranking='%s', homeplanet='%s' WHERE capt_id=%s" % (updfname,updlname,updrank,updhome,capt_id)
+    update_query = "UPDATE Captains SET  fname='%s', lname='%s', ranking='%s', homeplanet='%s' WHERE capt_badge=%s" % (updfname,updlname,updrank,updhome,capt_badge)
     execute_query(conn, update_query)
-    return 'Captain '+ str(capt_id)+' updated successfully'
+    return 'Captain '+ str(capt_badge)+' updated successfully'
 
 #POST (add) captain  into table in JSON format in http://127.0.0.1:5000/api/captains
 @app.route('/api/captains', methods=['POST'])
 def api_addcaptain():
     request_data = request.get_json()
-    capt_id = request_data['capt_id']
+    capt_badge = request_data['capt_badge']
     newfname = request_data['fname']
     newlname = request_data['lname']
     newrank = request_data['ranking']
     newhome = request_data['homeplanet']
     
-    add = "INSERT INTO Captains (capt_id, fname, lname, ranking, homeplanet) values (%s,'%s', '%s',' %s', '%s')" % (capt_id,newfname, newlname, newrank, newhome)
+    add = "INSERT INTO Captains (capt_badge, fname, lname, ranking, homeplanet) values (%s,'%s', '%s',' %s', '%s')" % (capt_badge,newfname, newlname, newrank, newhome)
     execute_query(conn,add)
     return 'Captain added successfully'
 
 ####################### #API for spaceship #########
-#GET  spaaceship using ID http://127.0.0.1:5000/api/spaceship?id=
+#GET spaaceships using ID http://127.0.0.1:5000/api/spaceship
 @app.route('/api/spaceship', methods=['GET']) # #
 def api_spaceship_id():
-    if 'id' in request.args: 
-        id = int(request.args['id'])
-    else:
-        return 'ERROR: No valid ID provided!'
-    
-    sql = "SELECT * FROM spaceship WHERE id = %s" %(id)
-    Spaceship = execute_read_query(conn, sql)
-    if Spaceship:
-        return jsonify(Spaceship[0])
 
-#Delete Spaceship using ID in http://127.0.0.1:5000/api/spaceship/(spaceship ID)
-@app.route('/api/spaceships/delete/<string:ship_tag>', methods= ['DELETE'])
+    sql = "SELECT maxweight, ship_tag FROM spaceship"
+    cursor=conn.cursor()
+    cursor.execute(sql)
+    records=cursor.fetchall()
+    spaceships = []
+    for record in records:
+        spaceship = {
+            'Maxweight For Ship ': record[0],
+            'Ship Tag': record[1]
+        }
+        spaceships.append(spaceship)
+    response = {'spaceships': spaceships}
+    return jsonify(response)
+    
+
+
+#Delete Spaceship using ID in http://127.0.0.1:5000/api/spaceship/delete/(ship_tag)
+@app.route('/api/spaceship/delete/<string:ship_tag>', methods= ['DELETE'])
 def delete_spaceship(ship_tag):
     delete = "DELETE FROM spaceship WHERE ship_tag= '%s'" % (ship_tag)
     execute_query(conn, delete)
     return 'Spaceship with Tag ' +str(ship_tag)+' has been deleted.'
 
 #POST(add) new spaceship  into table in JSON format in http://127.0.0.1:5000/api/spaceship
-@app.route('/api/spaceships', methods=['POST'])
+@app.route('/api/spaceship', methods=['POST'])
 def api_addspaceship():
     #Get JSON info
     request_data = request.get_json()
     newmaxweight = request_data['maxweight'] 
     newshiptag = request_data['ship_tag']
-    newcapt = request_data['capt_id']
+    newcapt = request_data['capt_badge']
     #Check captain ID
-    captain="SELECT id FROM Captains WHERE capt_id=%s" % newcapt
+    captain="SELECT id FROM Captains WHERE capt_badge=%s" % newcapt
     cursor=conn.cursor()
     cursor.execute(captain)
     results = cursor.fetchall()
     
     if len(results) == 0:
-        return 'ERROR: Captain ID not found!'
+        return 'ERROR: Captain badge not found!'
     
     capid=results[0][0]
-    add = "INSERT INTO spaceship (captainid, maxweight, ship_tag) values (%s, %s, '%s')" %  (capid ,newmaxweight, newshiptag)
+    add = "INSERT INTO spaceship (maxweight, ship_tag, capt_badge, captainid) values (%s, '%s', %s, %s)" %  (newmaxweight, newshiptag,newcapt,capid)
     execute_query(conn, add)
     return 'Spaceship added successfully'
 
 
-#PUT spaceship using JSON format http://127.0.0.1:5000/api/spaceship/(spaceship ID) 
-@app.route('/api/spaceships/update/<string:ship_tag>', methods=['PUT'])
+#PUT (update) spaceship using JSON format http://127.0.0.1:5000/api/spaceship/update/(ship_tag) 
+@app.route('/api/spaceship/update/<string:ship_tag>', methods=['PUT'])
 def update_spaceship(ship_tag):
     request_data = request.json
     updmaxweight = request_data['maxweight']
-    updcapid = request_data['capt_id']
-    updshipname = request_data['ship_tag']
+    updcapid = request_data['capt_badge']
     #Check captain ID
-    captain="SELECT id FROM Captains WHERE capt_id=%s" % updcapid
+    captain="SELECT id FROM Captains WHERE capt_badge=%s" % updcapid
     cursor=conn.cursor()
+    ship_tag1=str(ship_tag)
     cursor.execute(captain)
     results = cursor.fetchall()
-    capid=results[0][0]
-    update_query = "UPDATE spaceship SET captainid=%s, maxweight=%s, ship_tag='%s' WHERE ship_tag='%s'" % (capid,updmaxweight,updshipname,ship_tag)
+    capid=results[0]
+    update_query = "UPDATE spaceship SET maxweight=%s, capt_badge=%s, captainid=%s WHERE ship_tag='%s'" % (updmaxweight,updcapid,capid,ship_tag1)
     execute_query(conn, update_query)
-    return 'Spaceship tag ' +str(ship_tag)+ ' updated successfully'
+    return 'Spaceship tag ' +(ship_tag)+ ' updated successfully'
 
 
 # #API for cargo #########
