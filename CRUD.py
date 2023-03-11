@@ -1,8 +1,10 @@
 import flask
+import hashlib
 from flask import jsonify
 from flask import request
 from sql import create_connection, execute_query
 from sql import execute_read_query
+from flask import request, make_response
 from datetime import datetime
 import creds
 
@@ -15,9 +17,30 @@ cursor = conn.cursor(dictionary = True)
 app = flask.Flask(__name__) #sets up the application
 app.config["DEBUG"] = True #allow to show errors in browser
 
+#########################################SECURITY########################################################################
+
+#Code from Class06 Securityapi.py
+# password 'password' hashed from 
+masterPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+masterUsername = 'username'
+
+@app.route('/authenticatedroute', methods=['GET'])
+def auth_example():
+    if request.authorization:
+        encoded=request.authorization.password.encode() #unicode encoding
+        hashedResult = hashlib.sha256(encoded) #hashing
+        if request.authorization.username == masterUsername and hashedResult.hexdigest() == masterPassword:
+            return '<h1> WE ARE ALLOWED TO BE HERE </h1>'
+    return make_response('COULD NOT VERIFY!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
+
+
+
+
 @app.route('/', methods=['GET']) # default url without any routing as GET request
 def home():
     return "<h1> WELCOME TO MY Final Project API! </h1>"
+
+
 
 
 #API FOR CAPTAIN
@@ -96,8 +119,8 @@ def api_addcaptain():
     return 'Captain added successfully'
 
 ####################### #API for spaceship #########
-#GET spaaceships using ID http://127.0.0.1:5000/api/spaceship
-@app.route('/api/spaceship', methods=['GET']) # #
+#GET spaaceships using ID http://127.0.0.1:5000/api/spaceship/all
+@app.route('/api/spaceship/all', methods=['GET']) # #
 def api_spaceship_id():
 
     sql = "SELECT maxweight, ship_tag FROM spaceship"
@@ -111,9 +134,31 @@ def api_spaceship_id():
             'Ship Tag': record[1]
         }
         spaceships.append(spaceship)
-    response = {'spaceships': spaceships}
+    response = {'Spaceships': spaceships}
     return jsonify(response)
     
+#GET specific spaaceships using ID http://127.0.0.1:5000/api/spaceship
+@app.route('/api/spaceship', methods=['GET']) # #
+def api_onespaceship_id():
+    if 'id' in request.args: 
+        id = str(request.args['id'])
+    else:
+        return 'ERROR: No valid ID provided!'
+    sql = "SELECT maxweight, ship_tag FROM spaceship where ship_tag= '%s'"%id
+    cursor=conn.cursor()
+    cursor.execute(sql)
+    records=cursor.fetchall()
+    spaceships = []
+    for record in records:
+        spaceship = {
+            'Maxweight For Ship ': record[0],
+            'Ship Tag': record[1]
+        }
+        spaceships.append(spaceship)
+    response = {'Spaceship': spaceships}
+    return jsonify(response)
+    
+
 
 
 #Delete Spaceship using ID in http://127.0.0.1:5000/api/spaceship/delete/(ship_tag)
@@ -207,7 +252,7 @@ def api_cargo_all():
         cargo_list.append(cargo)
     return jsonify(cargo_list)
 
-#PUT (update) order_id/cargotype cargo using JSON format http://127.0.0.1:5000/api/cargo/update/(cargo ID) date format YYYY-MM-DD 
+#PUT (update) order_id/cargotype cargo using JSON format http://127.0.0.1:5000/api/cargo/update/(order_ID) date format YYYY-MM-DD 
 @app.route('/api/cargo/update/<int:order_id>', methods=['PUT'])
 def update_cargo(order_id):
     request_data = request.json
@@ -218,7 +263,7 @@ def update_cargo(order_id):
     return 'Cargo ID ' +str(order_id)+ ' updated successfully'
 
 
-#PUT (update) cargo arrival time using JSON format http://127.0.0.1:5000/api/cargo/arrival/order/(order ID) UPDATING ARRIVAL TIME YYYY-MM-DD
+#PUT (update) cargo arrival time using JSON format http://127.0.0.1:5000/api/cargo/arrival/order/(order_ID) UPDATING ARRIVAL TIME YYYY-MM-DD
 @app.route('/api/cargo/arrival/order/<int:order_id>', methods=['PUT'])
 def update_cargo_arrival(order_id):
     request_data = request.json 
@@ -241,8 +286,8 @@ def update_cargo_arrival(order_id):
     else:
         return 'Cargo ID ' + str(id) + ' not found'    
 
-#Put (update) cargo departure time using JSON format http://127.0.0.1:5000/api/cargo/departure/(cargo ID) ADDING DEPARTURE TIME YYYY-MM-DD
-@app.route('/api/cargo/departure/<int:order_id>', methods=['PUT'])
+#Put (update) cargo departure time using JSON format http://127.0.0.1:5000/api/cargo/departure/(order_ID) ADDING DEPARTURE TIME YYYY-MM-DD
+@app.route('/api/cargo/departure/order/<int:order_id>', methods=['PUT'])
 def update_cargo_departure(order_id):
     request_data = request.json
     upddeparture = request_data['departure']
@@ -277,12 +322,6 @@ def delete_cargp(order_id):
     delete = "DELETE FROM cargo WHERE order_id = %s" % (order_id)
     execute_query(conn, delete)
     return 'Cargo with ID ' +str(order_id)+' has been deleted.'
-
-
-
-
-    
-
 
 
 app.run()
