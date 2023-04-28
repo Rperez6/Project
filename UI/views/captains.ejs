@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('partials/head'); %>
+    <script src="/js/captains.js"></script>
+  </head>
+
+  <body class="container">
+    <header>
+      <%- include('partials/header'); %>
+    </header>
+
+    <main>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="jumbotron">
+            <div id="captains-list">
+              <p>Captains Page</p>
+
+              <button id="getCaptainsBtn">GET Captains</button>
+              <button id="createCaptainBtn">Create Captain</button>
+              <button id="deleteCaptainBtn" onclick="deleteCaptain()">Delete Captain</button>
+
+              <button id="updateCaptainBtn">Update Captain</button>
+
+              <div id="captainResult"></div>
+
+              <div id="createCaptainForm" style="display: none;">
+                <h3>Create Captain</h3>
+                <form id="addCaptainForm">
+                  <label for="capt_badge">Captain Badge:</label>
+                  <input type="number" id="capt_badge" name="capt_badge" required /><br />
+                  <label for="fname">First Name:</label>
+                  <input type="text" id="fname" name="fname" required /><br />
+                  <label for="lname">Last Name:</label>
+                  <input type="text" id="lname" name="lname" required /><br />
+                  <label for="ranking">Ranking:</label>
+                  <input type="text" id="ranking" name="ranking" required /><br />
+                  <label for="homeplanet">Home Planet:</label>
+                  <input type="text" id="homeplanet" name="homeplanet" required /><br />
+                  <button type="submit">Submit</button>
+                  <p>To see newly added captain, select "GET captains" again</p>
+                </form>
+              </div>
+
+              <div id="deleteCaptainForm" style="display: none;">
+                <h3>Delete Captain</h3>
+                <form id="delCaptainForm">
+                  <label for="capt_badge">Captain Badge:</label>
+                  <input type="number" id="del_capt_badge" name="del_capt_badge" required /><br />
+                  <button type="submit">Delete</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <%- include('partials/footer'); %>
+    </footer>
+
+  </body>
+  <script></script>
+
+</html>

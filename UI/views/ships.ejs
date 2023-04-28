@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('partials/head'); %>
+    <script src="/js/ships.js"></script>
+  </head>
+
+  <body class="container">
+    <header>
+      <%- include('partials/header'); %>
+    </header>
+
+    <main>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="jumbotron">
+            <div id="ships-list">
+              <p>Ships Page</p>
+
+              <button id="getShipsBtn">GET Ships</button>
+              <button id="createShipBtn">Create Ship</button>
+              <button id="deleteShipBtn">Delete Ship</button>
+              <button id="updateShipBtn">Update Ship</button>
+
+              <div id="shipResult"></div>
+
+              <div id="deleteShipForm" style="display: none;">
+                <h3>Delete Ship</h3>
+                <form id="delShipForm">
+                  <label for="ship_id">Ship ID:</label>
+                  <input type="number" id="del_ship_id" name="del_ship_id" required /><br />
+                  <button type="submit">Delete</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <%- include('partials/footer'); %>
+    </footer>
+
+  </body>
+  <script></script>
+
+</html>
